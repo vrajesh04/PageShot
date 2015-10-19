@@ -1,6 +1,10 @@
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
@@ -16,8 +20,8 @@ public class PageShooter {
 
 	public static void main(final String[] args) throws Exception {
 		System.out.print(args);
-		final String link = "http://www.vmware.com/resources/compatibility/search.php";
-		final String link1 = "http://www.vmware.com/resources/compatibility/search.php?deviceCategory=san";
+		final String link = "http://localhost/sprint/comp_guide2/search1.php";
+		final String link1 = "http://localhost/sprint/comp_guide2/search.php";
 		final File screenShot = new File("screenshot.png").getAbsoluteFile();
 		final File screenShot1 = new File("screenshot1.png").getAbsoluteFile();
 
@@ -47,6 +51,28 @@ public class PageShooter {
 			FileUtils.copyFile(outputFile1, screenShot1);
 			PageShooter.LOGGER.debug("Screenshot saved: {}", screenShot1);
 			System.out.println(screenShot1);
+			
+			//Screenshot diff
+			BufferedImage img = ImageIO.read(screenShot);
+			BufferedImage img1 = ImageIO.read(screenShot1);
+			File difffile = new File("diff_file.png");
+			
+
+
+			System.out.print("("+img.getHeight()+","+img.getWidth()+");("+img1.getHeight()+","+img1.getWidth()+")");
+			for(int i = 0; i < img.getWidth(); i++)
+			{
+			    for(int j = 0; j < img.getHeight(); j++)
+			    {
+			    	if(img.getRGB(i, j) != img1.getRGB(i, j))
+			    	{
+			    		System.out.println(i+","+j);
+			    		img.setRGB(i, j, new java.awt.Color(255,0,0).getRGB());
+			    	}
+			    	//System.out.print(img.getRGB(i, j));
+			    }
+			}
+			ImageIO.write(img, "png", difffile);
 			
 		} finally {
 			driver.close();
